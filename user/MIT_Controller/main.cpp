@@ -8,8 +8,10 @@
 
 #include <main_helper.h>
 #include "MIT_Controller.hpp"
+#include <memory>
 
-int main(int argc, char** argv) {
-  main_helper(argc, argv, new MIT_Controller());
-  return 0;
+int main(int argc, char **argv) {
+    auto mitController = std::make_unique<MIT_Controller>();
+    main_helper(argc, argv, mitController.get());
+    return 0;
 }

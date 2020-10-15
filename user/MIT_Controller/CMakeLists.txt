@@ -4,7 +4,7 @@ include_directories("../../robot/include")
 include_directories("../../common/include/")
 include_directories("../../common/FootstepPlanner")
 include_directories("../../third-party/")
-include_directories(SYSTEM "../../third-party/qpOASES/include")
+#include_directories(SYSTEM "../../third-party/qpOASES/include")
 include_directories("../../third-party/ParamHandler")
 
 include_directories("../../lcm-types/cpp")

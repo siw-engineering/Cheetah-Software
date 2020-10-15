@@ -134,26 +134,26 @@ template <typename T>
 void FSM_State<T>::runControls() {
   // This option should be set from the user interface or autonomously
   // eventually
-  int CONTROLLER_OPTION = 1;
+//  const int CONTROLLER_OPTION = 1;
 
   // Reset the forces and steps to 0
   footFeedForwardForces = Mat34<T>::Zero();
   footstepLocations = Mat34<T>::Zero();
 
   // Choose the controller to run for picking step locations and balance forces
-  if (CONTROLLER_OPTION == 0) {
-    // Test to make sure we can control the robot
-    // Test to make sure we can control the robot these will be calculated by
-    // the controllers
-    for (int leg = 0; leg < 4; leg++) {
-      footFeedForwardForces.col(leg) << 0.0, 0.0, 0;  //-220.36;
-      // footFeedForwardForces.col(leg) = stateEstimate.rBody *
-      // footFeedForwardForces.col(leg);
-
-      footstepLocations.col(leg) << 0.0, 0.0,
-          -_data->_quadruped->_maxLegLength / 2;
-    }
-  } else if (CONTROLLER_OPTION == 1) {
+//  if constexpr (CONTROLLER_OPTION == 0) {
+//    // Test to make sure we can control the robot
+//    // Test to make sure we can control the robot these will be calculated by
+//    // the controllers
+//    for (int leg = 0; leg < 4; leg++) {
+//      footFeedForwardForces.col(leg) << 0.0, 0.0, 0;  //-220.36;
+//      // footFeedForwardForces.col(leg) = stateEstimate.rBody *
+//      // footFeedForwardForces.col(leg);
+//
+//      footstepLocations.col(leg) << 0.0, 0.0,
+//          -_data->_quadruped->_maxLegLength / 2;
+//    }
+//  } else if constexpr (CONTROLLER_OPTION == 1) {
     // QP Balance Controller
     runBalanceController();
 
@@ -163,36 +163,37 @@ void FSM_State<T>::runControls() {
           -_data->_quadruped->_maxLegLength / 2;
     }  // footstepHeuristicPlacement();
 
-  } else if (CONTROLLER_OPTION == 2) {
-    // WBC
-    runWholeBodyController();
-
-  } else if (CONTROLLER_OPTION == 3) {
-    // cMPC
-    runConvexModelPredictiveController();
-
-    // Swing foot landing positions are calculated with heuristics
-    // footstepHeuristicPlacement();
-
-  } else if (CONTROLLER_OPTION == 4) {
-    // RPC
-    runRegularizedPredictiveController();
-
-  } else {
-    // Zero out the commands if a controller was not selected
-    jointFeedForwardTorques =
-        Mat34<float>::Zero();                // feed forward joint torques
-    jointPositions = Mat34<float>::Zero();   // joint angle positions
-    jointVelocities = Mat34<float>::Zero();  // joint angular velocities
-    footFeedForwardForces =
-        Mat34<float>::Zero();              // feedforward forces at the feet
-    footPositions = Mat34<float>::Zero();  // cartesian foot positions
-    footVelocities = Mat34<float>::Zero();
-
-    // Print an error message
-    std::cout << "[FSM_State] ERROR: No known controller was selected: "
-              << CONTROLLER_OPTION << std::endl;
-  }
+//  }
+//  else if (CONTROLLER_OPTION == 2) {
+//    // WBC
+//    runWholeBodyController();
+//
+//  } else if (CONTROLLER_OPTION == 3) {
+//    // cMPC
+//    runConvexModelPredictiveController();
+//
+//    // Swing foot landing positions are calculated with heuristics
+//    // footstepHeuristicPlacement();
+//
+//  } else if (CONTROLLER_OPTION == 4) {
+//    // RPC
+//    runRegularizedPredictiveController();
+//
+//  } else {
+//    // Zero out the commands if a controller was not selected
+//    jointFeedForwardTorques =
+//        Mat34<float>::Zero();                // feed forward joint torques
+//    jointPositions = Mat34<float>::Zero();   // joint angle positions
+//    jointVelocities = Mat34<float>::Zero();  // joint angular velocities
+//    footFeedForwardForces =
+//        Mat34<float>::Zero();              // feedforward forces at the feet
+//    footPositions = Mat34<float>::Zero();  // cartesian foot positions
+//    footVelocities = Mat34<float>::Zero();
+//
+//    // Print an error message
+//    std::cout << "[FSM_State] ERROR: No known controller was selected: "
+//              << CONTROLLER_OPTION << std::endl;
+//  }
 }
 
 /**
