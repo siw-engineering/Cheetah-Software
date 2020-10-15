@@ -2,6 +2,7 @@
 #include <Utilities/Timer.h>
 #include <eigen3/Eigen/LU>
 #include <eigen3/Eigen/SVD>
+#include <qpOASES.hpp>
 
   template <typename T>
 WBIC<T>::WBIC(size_t num_qdot, const std::vector<ContactSpec<T>*>* contact_list,
@@ -82,9 +83,66 @@ void WBIC<T>::MakeTorque(DVec<T>& cmd, void* extra_input) {
 
   // Optimization
   // Timer timer;
-  T f = solve_quadprog(G, g0, CE, ce0, CI, ci0, z);
+    auto createMat = [](const GolDIdnani::GMatr<double> &input) -> Eigen::Matrix<double, -1, -1, Eigen::RowMajor>{
+        auto nRows = input.nrows();
+        auto nCols = input.ncols();
+        Eigen::Matrix<double, -1, -1, Eigen::RowMajor> mat = Eigen::Matrix<double, -1, -1, Eigen::RowMajor>::Zero(nRows, nCols);
+        for (auto i = 0ul; i < nRows; i++) {
+            for (auto j = 0ul; j < nCols; j++) {
+                mat(i, j) = input[i][j];
+            }
+        }
+
+        return mat;
+    };
+    auto createVec = [](const GolDIdnani::GVect<double> &input) -> Eigen::VectorXd{
+        auto nRows = input.size();
+        Eigen::VectorXd mat = Eigen::VectorXd::Zero(nRows);
+        for (auto i = 0ul; i < nRows; i++) {
+            mat(i) = input[i];
+        }
+
+        return mat;
+    };
+    Eigen::Matrix<double, -1, -1, Eigen::RowMajor> G_eigen = createMat(G);
+    Eigen::VectorXd g0_eigen = createVec(g0);
+    Eigen::Matrix<double, -1, -1, Eigen::RowMajor> CE_eigen = createMat(CE).transpose();
+    Eigen::VectorXd ce0_eigen = createVec(ce0) * -1;
+    Eigen::Matrix<double, -1, -1, Eigen::RowMajor> CI_eigen = createMat(CI).transpose();
+    Eigen::VectorXd ci0_eigen = createVec(ci0) * -1;
+    Eigen::VectorXd z_eigen = createVec(z);
+
+    qpOASES::QProblem example(_dim_opt, _dim_eq_cstr + _dim_rf);
+
+    qpOASES::Options options;
+    example.setOptions(options);
+    /* Solve first QP. */
+    qpOASES::int_t nWSR = 1000;
+
+    Eigen::Matrix<double, -1, -1, Eigen::RowMajor> constraints(CE_eigen.rows() + CI_eigen.rows(), CE_eigen.cols());
+    constraints << CE_eigen, CI_eigen;
+
+    auto doubleMax = std::numeric_limits<double>::max();
+    auto doubleMin = std::numeric_limits<double>::lowest();
+    Eigen::VectorXd lowerBounds = Eigen::VectorXd(ce0_eigen.size() + ci0_eigen.size());
+    lowerBounds << ce0_eigen, ci0_eigen;
+    Eigen::VectorXd upperBounds = Eigen::VectorXd(ce0_eigen.size() + ci0_eigen.size());
+    upperBounds << ce0_eigen, Eigen::VectorXd::Ones(ci0_eigen.size()) * doubleMax;
+    example.init(G_eigen.data(), g0_eigen.data(), constraints.data(), NULL, NULL, lowerBounds.data(), upperBounds.data(), nWSR);
+    Eigen::Matrix<double, -1, 1> solved_x = Eigen::Matrix<double, -1, 1>(_dim_opt);
+    example.getPrimalSolution(solved_x.data());
+
+    Eigen::IOFormat CommaInitFmt(Eigen::StreamPrecision, Eigen::DontAlignCols, ", ", ", ", "", "", "", ";");
+
+//    T f = solve_quadprog(G, g0, CE, ce0, CI, ci0, z);
+    z.resize(G.ncols());
+    // std::cout<<"\n wbic old time: "<<timer.getMs()<<std::endl;
+//    (void)f;
+
+    for(auto i = 0ul; i<_dim_opt;i++){
+        z[i] = solved_x[i];
+    }
   // std::cout<<"\n wbic old time: "<<timer.getMs()<<std::endl;
-  (void)f;
 
   // pretty_print(qddot_pre, std::cout, "qddot_cmd");
   for (size_t i(0); i < _dim_floating; ++i) qddot_pre[i] += z[i];

@@ -105,7 +105,7 @@ double solve_quadprog(Eigen::MatrixXd& _G, Eigen::VectorXd& _g0,
     return ret;
 }
 
-double solve_quadprog(GMatr<double>& G, GVect<double>& g0,
+double solve_quadprog(GMatr<double>& G, const GVect<double>& g0,
                       const GMatr<double>& CE, const GVect<double>& ce0,
                       const GMatr<double>& CI, const GVect<double>& ci0,
                       GVect<double>& x)
