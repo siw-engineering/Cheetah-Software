@@ -178,8 +178,8 @@ void WBIC<T>::MakeTorque(DVec<T> &cmd, void *extra_input) {
         dataJson["z"] = jz;
 
 // write prettified JSON to another file
-        std::ofstream o("/home/pohzhiee/Documents/hyq_cheetah_ws/src/hyq_cheetah/src/test/data/data_trot.json");
-        o << std::setw(4) << dataJson << std::endl;
+//        std::ofstream o("/home/pohzhiee/Documents/hyq_cheetah_ws/src/hyq_cheetah/src/test/data/data_trot.json");
+//        o << std::setw(4) << dataJson << std::endl;
     }
     // std::cout << "f: " << f << std::endl;
     //std::cout << "x: " << z << std::endl;
@@ -207,7 +207,7 @@ void WBIC<T>::MakeTorque(DVec<T> &cmd, void *extra_input) {
     // std::cout<<CI<<std::endl;
     // printf("ci0:\n");
     // std::cout<<ci0<<std::endl;
-    std::cout << "someCount: " << someCount << std::endl;
+//    std::cout << "someCount: " << someCount << std::endl;
     ++someCount;
 }
 

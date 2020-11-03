@@ -1,5 +1,6 @@
 #ifndef INCLUDE_EIGEN_CONVERSION_HPP
 #define INCLUDE_EIGEN_CONVERSION_HPP
+
 #include <type_traits>
 #include <iostream>
 #include <typeinfo>
@@ -36,6 +37,14 @@ namespace Eigen
     void from_json(const nlohmann::json& j, MatrixBase<Derived>& matrix);
 
 
+    // Specialization for Vector3f
+
+    template <>
+    void to_json<Vector3f>(nlohmann::json& j, const MatrixBase<Vector3f>& vector);
+
+    template <>
+    void from_json<Vector3f>(const nlohmann::json& j, MatrixBase<Vector3f>& vector);
+
 
     // Quaternion
 
@@ -50,7 +59,7 @@ namespace Eigen
     // IMPLEMENTATION
 
     template <typename Derived>
-    inline void to_json(nlohmann::json& j, const MatrixBase<Derived>& matrix)
+    void to_json(nlohmann::json& j, const MatrixBase<Derived>& matrix)
     {
         for (int row = 0; row < matrix.rows(); ++row)
         {
@@ -80,6 +89,23 @@ namespace Eigen
     }
 
 
+    template <>
+    void to_json<Vector3f>(nlohmann::json& j, const MatrixBase<Vector3f>& vector)
+    {
+        j["x"] = vector.x();
+        j["y"] = vector.y();
+        j["z"] = vector.z();
+    }
+
+    template <>
+    void from_json<Vector3f>(const nlohmann::json& j, MatrixBase<Vector3f>& vector)
+    {
+        vector.x() = j.at("x").get<float>();
+        vector.y() = j.at("y").get<float>();
+        vector.z() = j.at("z").get<float>();
+    }
+
+
     template <typename Derived>
     void to_json(nlohmann::json& j, const QuaternionBase<Derived>& quat)
     {
@@ -100,5 +126,4 @@ namespace Eigen
     }
 
 }
-
 #endif
