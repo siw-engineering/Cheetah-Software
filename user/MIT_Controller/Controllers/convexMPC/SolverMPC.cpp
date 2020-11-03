@@ -470,16 +470,22 @@ void solve_mpc(update_data_t *update, problem_setup *setup)
 
     if (someCountMPC == printIndexMPC)
     {
-        nlohmann::json qH_json, qg_json, fmat_json, gait_json;
+        nlohmann::json S_json, qH_json, qg_json, fmat_json, gait_json, lb_json, ub_json;
         Eigen::Map<Eigen::Matrix<unsigned char, -1, -1>> gait_map(update->gait, setup->horizon, 4);
         auto gait_mat_int = gait_map.cast<int>();
         Eigen::to_json(gait_json, gait_mat_int);
         Eigen::to_json(qH_json, qH);
         Eigen::to_json(qg_json, qg);
         Eigen::to_json(fmat_json, fmat);
+        Eigen::to_json(lb_json, Eigen::MatrixXd::Zero(setup->horizon * 20, 1));
+        Eigen::to_json(ub_json, U_b);
+        Eigen::to_json(S_json, S);
+        dataJsonMPC["S"] = S_json;
         dataJsonMPC["qH"] = qH_json;
         dataJsonMPC["qg"] = qg_json;
         dataJsonMPC["constraints"] = fmat_json;
+        dataJsonMPC["lb"] = lb_json;
+        dataJsonMPC["ub"] = ub_json;
         dataJsonMPC["gait"] = gait_json;
     }
 
